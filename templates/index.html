@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Control de nivel - Banco de flotación</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+  <header>
+    <h1>Control automático de nivel en 3 tanques</h1>
+    <p>Cada bomba ajusta cuánto líquido saca de su tanque según lo que mide el sensor,
+      para mantener el nivel en la línea roja.</p>
+  </header>
+
+  <main>
+    <section class="panel controls">
+      <label>Estrategia de control
+        <select id="mode">
+        <option value="0" selected>Solo reacciona (Feedback)</option>
+        <option value="1">Anticipa + reacciona (Feedback + Feedforward)</option>
+      </select>
+      </label>
+      <label>Velocidad
+        <select id="speed">
+          <option value="1">Lenta</option>
+          <option value="2" selected>Normal</option>
+          <option value="5">Rápida</option>
+        </select>
+      </label>
+      <button id="btnRun" class="primary">▶ Simular</button>
+      <button id="btnPause" class="secondary">Pausa</button>
+      <span class="clock">Tiempo: <b id="tLabel">0</b> s</span>
+    </section>
+
+    <section class="panel">
+      <label for="flow">Caudal de entrada al Tanque 1: <b id="flowVal">45</b> L/min</label>
+      <input type="range" id="flow" min="20" max="75" step="1" value="45">
+      <p class="note">Mueve la barra mientras corre la simulación y suéltala: verás cómo las bombas
+        se adaptan hasta que el nivel vuelve a 36 cm. Esto no está en el artículo; lo añadimos
+        para experimentar.</p>
+    </section>
+
+    <section class="panel explain">
+      <h2>¿Qué significa cada estrategia?</h2>
+      <p>Imagina una tina con un grifo (lo que entra) y un desagüe (la bomba). Queremos que el agua se mantenga a 36 cm.
+      </p>
+      <p><b>Solo Feedback:</b> esperas a que la tina se llene de más o de menos y recién entonces ajustas el desagüe.
+      </p>
+      <p><b>Feedback + Feedforward:</b> además notas cuándo abren más el grifo y ajustas el desagüe
+        al mismo tiempo, sin esperar a que el nivel cambie.</p>
+    </section>
+
+    <section class="panel">
+      <svg id="plant" viewBox="0 0 900 420"></svg>
+      <p class="note">L/min = litros por minuto. Cada bomba saca líquido de su tanque
+        y lo envía al siguiente. El sensor brilla en rojo si el nivel está alto,
+        en azul si está bajo y en verde si está en la consigna.</p>
+      <ul class="legend">
+        <li><span class="dot ok"></span> Verde: el nivel está en la consigna (36 cm)</li>
+        <li><span class="dot high"></span> Rojo: nivel alto, la bomba saca más líquido</li>
+        <li><span class="dot low"></span> Azul: nivel bajo, la bomba saca menos líquido</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Nivel de cada tanque</h2>
+      <canvas id="chart" width="900" height="260"></canvas>
+    </section>
+
+    <section class="panel" id="iaePanel">
+      <h2>Error acumulado del nivel (menor es mejor)</h2>
+      <p class="note">Suma cuánto se alejó el nivel de los 36 cm durante los 30 minutos simulados (unidad: cm·s).</p>
+      <table>
+        <tr>
+          <th></th>
+          <th>Tanque 1</th>
+          <th>Tanque 2</th>
+          <th>Tanque 3</th>
+        </tr>
+        <tr>
+          <td>Solo Feedback</td>
+          <td id="i01">-</td>
+          <td id="i02">-</td>
+          <td id="i03">-</td>
+        </tr>
+        <tr>
+          <td>Feedback + Feedforward</td>
+          <td id="i11">-</td>
+          <td id="i12">-</td>
+          <td id="i13">-</td>
+        </tr>
+      </table>
+      <p class="note" id="iaeVerdict"></p>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+
+</html>
