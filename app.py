@@ -158,4 +158,4 @@ def api_simulate():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()   # solo para pruebas locales; en Render lo ejecuta gunicorn
